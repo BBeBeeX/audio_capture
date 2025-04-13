@@ -30,8 +30,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  just_audio: ^0.9.46
-  just_audio_media_kit: ^2.0.6
+  just_audio:
+    git:
+      url: https://github.com/BBeBeeX/just_audio.git
+      ref: visualizer
+      path: just_audio
+  just_audio_media_kit:
+    git:
+      url: https://github.com/BBeBeeX/just_audio_media_kit.git
+      ref: main
   media_kit_libs_windows_audio: ^1.0.9
   permission_handler: ^11.4.0
   fftea: 1.5.0
@@ -56,6 +63,13 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+
+dependency_overrides:
+  just_audio_platform_interface:
+    git:
+      url: https://github.com/ryanheise/just_audio.git
+      ref: visualizer
+      path: just_audio_platform_interface
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

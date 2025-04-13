@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:audio_capture/audio_capture.dart';
 import 'package:fftea/impl.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_media_kit/just_audio_media_kit.dart';
@@ -43,7 +44,7 @@ enum VisualizationType {
 }
 
 class _AudioCaptureExampleState extends State<AudioCaptureExample> with SingleTickerProviderStateMixin {
-  late AudioCapture _audioCapture;
+  AudioCapture _audioCapture = AudioCapture(bufferSize: 1024);
   bool _isCapturing = false;
   List<double> _audioData = [];
   StreamSubscription<List<double>>? _audioStreamSubscription;
@@ -70,8 +71,17 @@ class _AudioCaptureExampleState extends State<AudioCaptureExample> with SingleTi
   }
 
   void _initializeAudioCapture() {
-    // Create an instance of AppAudioCapture with a buffer size of 1024
-    _audioCapture = AudioCapture(bufferSize: 1024);
+    print('_initializeAudioCapture');
+    if ([TargetPlatform.iOS, TargetPlatform.android, TargetPlatform.macOS].contains(defaultTargetPlatform)) {
+       _player.startVisualizer(
+          enableWaveform: true, enableFft: true, captureRate: 44100);
+
+      _player.visualizerFftStream.listen((data){});
+      _player.visualizerWaveformStream.listen((data){});
+
+    }else if([TargetPlatform.windows].contains(defaultTargetPlatform)){
+      _startCapture();
+    }
   }
 
   void _startCapture() {
@@ -84,13 +94,16 @@ class _AudioCaptureExampleState extends State<AudioCaptureExample> with SingleTi
       _audioStreamSubscription = _audioCapture.audioStream.listen((audioData) {
         setState(() {
 
-          // final freq = FFT(audioData.length).realFft(audioData);
-          // _audioData = List.generate(freq.length, (i) {
-          //   final real = freq[i].x;
-          //   final imag = freq[i].y;
-          //   return sqrt(real * real + imag * imag);
-          // });
-          _audioData = audioData;
+          final len = min(audioData.length, 128);
+          final freq = FFT(len).realFft(audioData.take(128).toList());
+          _audioData = List.generate(len, (i) {
+            final real = freq[i].x;
+            final imag = freq[i].y;
+            return sqrt(real * real + imag * imag);
+          });
+          // _audioData = audioData;
+          print(_audioData);
+
         });
       });
     }
@@ -297,12 +310,9 @@ class AudioWaveformPainter extends CustomPainter {
     final barCount = min(audioData.length ~/ 2, 64);
     final barWidth = width / barCount - 2;
 
-    // In a real FFT, we would do the Fourier transform here
-    List<double> fftData = _simulateFFT(audioData, barCount);
-
     for (int i = 0; i < barCount; i++) {
       // The height increases with frequency to simulate FFT output
-      final magnitude = fftData[i];
+      final magnitude = audioData[i];
       final barHeight = magnitude * height * 0.8;
 
       final left = i * (barWidth + 2);
@@ -320,41 +330,6 @@ class AudioWaveformPainter extends CustomPainter {
     }
   }
 
-  // This is a simplified simulation of FFT output
-  // In production, you would use a real FFT algorithm
-  List<double> _simulateFFT(List<double> timeData, int bins) {
-    List<double> result = List<double>.filled(bins, 0);
-
-    // Simple approximation - in real FFT this would be frequency components
-    for (int i = 0; i < bins; i++) {
-      // Calculate a weighted sum of samples at different offsets
-      double sum = 0;
-      int count = 0;
-
-      // For each bin, we sample from different parts of the signal
-      // Higher frequency bins sample more from the beginning of the signal
-      int samplesPerBin = timeData.length ~/ bins;
-      int offset = (i * samplesPerBin) ~/ 2;
-
-      for (int j = 0; j < samplesPerBin; j++) {
-        int index = (offset + j) % timeData.length;
-        sum += timeData[index].abs();
-        count++;
-      }
-
-      // Add some randomness to make it look more like frequency spectrum
-      double average = count > 0 ? sum / count : 0;
-
-      // Higher frequencies typically have lower amplitude
-      result[i] = average * (1.0 - (i / bins) * 0.5);
-
-      // Add some randomness to make it look more dynamic
-      result[i] *= 0.5 + Random().nextDouble() * 0.5;
-    }
-
-    return result;
-  }
-
   void _paintSpectrum(Canvas canvas, Size size) {
     final width = size.width;
     final height = size.height;
@@ -363,12 +338,9 @@ class AudioWaveformPainter extends CustomPainter {
     final barCount = min(audioData.length ~/ 2, 128);
     final barWidth = width / barCount;
 
-    // Simulate FFT data
-    List<double> spectrumData = _simulateFFT(audioData, barCount);
-
     // Draw each frequency bin with a color gradient
     for (int i = 0; i < barCount; i++) {
-      final magnitude = spectrumData[i];
+      final magnitude = audioData[i];
       final barHeight = magnitude * height * 0.9;
 
       // Create a gradient color based on frequency
