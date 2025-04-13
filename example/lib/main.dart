@@ -70,7 +70,9 @@ class _AudioCaptureExampleState extends State<AudioCaptureExample> with SingleTi
     );
   }
 
-  void _initializeAudioCapture() {
+  Future<void> _initializeAudioCapture() async {
+    await _audioCapture.init();
+
     print('_initializeAudioCapture');
     if ([TargetPlatform.iOS, TargetPlatform.android, TargetPlatform.macOS].contains(defaultTargetPlatform)) {
        _player.startVisualizer(
