@@ -40,9 +40,10 @@ class AudioCapture {
   AudioCapture({
     int bufferSize = 2048,
     this.captureInterval = 50,
-  }) : _bufferSize = bufferSize {
-    // Initialize the audio capture system
-    AudioCaptureBase.initialize();
+  }) : _bufferSize = bufferSize {}
+
+  Future<void> init()async{
+    await AudioCaptureBase.initialize();
     _audioFormat = AudioCaptureBase.getAudioFormat();
   }
 
