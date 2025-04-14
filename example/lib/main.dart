@@ -59,8 +59,11 @@ class _AudioCaptureExampleState extends State<AudioCaptureExample> with SingleTi
     super.initState();
     _initializeAudioCapture();
     JustAudioMediaKit.ensureInitialized();
-    _player.setAudioSource(AudioSource.uri(Uri.parse(
-        'https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3')));
+    _player.setAudioSource(AudioSource.asset(
+        'assets/audio/chunk_mfn.wav'));
+    // _player.setAudioSource(AudioSource.uri(Uri.parse(
+    //     'https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3')));
+    _player.setLoopMode(LoopMode.one);
     _player.play();
 
     // Initialize tab controller
@@ -73,7 +76,6 @@ class _AudioCaptureExampleState extends State<AudioCaptureExample> with SingleTi
   Future<void> _initializeAudioCapture() async {
     await _audioCapture.init();
 
-    print('_initializeAudioCapture');
     if ([TargetPlatform.iOS, TargetPlatform.android, TargetPlatform.macOS].contains(defaultTargetPlatform)) {
        _player.startVisualizer(
           enableWaveform: true, enableFft: true, captureRate: 44100);
@@ -96,15 +98,14 @@ class _AudioCaptureExampleState extends State<AudioCaptureExample> with SingleTi
       _audioStreamSubscription = _audioCapture.audioStream.listen((audioData) {
         setState(() {
 
-          final len = min(audioData.length, 128);
-          final freq = FFT(len).realFft(audioData.take(128).toList());
+          final len = min(audioData.length, 256);
+          final freq = FFT(len).realFft(audioData.take(256).toList());
           _audioData = List.generate(len, (i) {
             final real = freq[i].x;
             final imag = freq[i].y;
             return sqrt(real * real + imag * imag);
           });
           // _audioData = audioData;
-          print(_audioData);
 
         });
       });
@@ -406,7 +407,14 @@ class ControlButtons extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.volume_up),
-          onPressed: () {},
+          onPressed: () async {
+            final volume = await player.volumeStream.first;
+            if(volume == 0.0){
+              player.setVolume(1);
+            }else{
+              player.setVolume(0);
+            }
+          },
         ),
         StreamBuilder<SequenceState?>(
           stream: player.sequenceStateStream,

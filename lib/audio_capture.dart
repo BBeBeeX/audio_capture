@@ -79,14 +79,13 @@ class AudioCapture {
     _audioStreamController.close();
   }
 
-  // Private methods
 
   void _startCaptureTimer() {
     _captureTimer?.cancel();
-    _captureTimer =
-        Timer.periodic(Duration(milliseconds: captureInterval), (_) {
+    _captureTimer = Timer.periodic(Duration(milliseconds: captureInterval), (_) {
       final audioData = AudioCaptureBase.getAudioData(_bufferSize);
       if (audioData.isNotEmpty) {
+        print(audioData);
         _audioStreamController.add(audioData);
       }
     });

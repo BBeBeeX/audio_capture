@@ -124,15 +124,15 @@ class AudioCaptureBase {
       DynamicLibrary library;
       if (Platform.isWindows) {
         String exeDirectory = File(Platform.resolvedExecutable).parent.path;
-        String dllPath = path.join(exeDirectory,'audio_capture_util.dll');
+        String dllPath = path.join(exeDirectory,'audio_capture_lib.dll');
         print('Trying to load DLL from: $dllPath');
 
         library = DynamicLibrary.open(dllPath);
         print('DLL Loaded Successfully!');
       } else if (Platform.isMacOS) {
-        library = DynamicLibrary.open('audio_capture_util.dylib');
+        library = DynamicLibrary.open('audio_capture_lib.dylib');
       } else if (Platform.isLinux || Platform.isAndroid) {
-        library = DynamicLibrary.open('audio_capture_util.so');
+        library = DynamicLibrary.open('audio_capture_lib.so');
       } else {
         throw UnsupportedError(
             'Unsupported platform: ${Platform.operatingSystem}\r\n');

@@ -14,7 +14,7 @@ cd ..\..
 
 mkdir prebuilt\windows
 
-copy "build\windows\Release\audio_capture.dll" prebuilt\windows\audio_capture_util.dll
+copy "build\windows\Release\audio_capture.dll" prebuilt\windows\audio_capture_lib.dll
 
 rmdir /s /q build\windows
 

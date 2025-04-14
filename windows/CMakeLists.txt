@@ -99,8 +99,8 @@ include(GoogleTest)
 gtest_discover_tests(${TEST_RUNNER})
 endif()
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/audio_capture_util.dll
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/audio_capture_lib.dll
         DESTINATION ${CMAKE_BINARY_DIR}/runner/Debug)
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/audio_capture_util.dll
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/audio_capture_lib.dll
         DESTINATION ${CMAKE_BINARY_DIR}/runner/Release)

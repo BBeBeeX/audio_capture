@@ -18,8 +18,9 @@ static char currentDeviceId[256] = {0};
 void app_data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
     if (isAppCapturing) {
         const float* input = static_cast<const float*>(pInput);
-        std::memset(appBuffer.data(), 0, appBuffer.size() * sizeof(float));
-        appBuffer.insert(appBuffer.begin(), input, input + frameCount * pDevice->capture.channels);
+        appBuffer.assign(input, input + frameCount * pDevice->capture.channels);
+//        std::memset(appBuffer.data(), 0, appBuffer.size() * sizeof(float));
+//        appBuffer.insert(appBuffer.begin(), input, input + frameCount * pDevice->capture.channels);
     }
 }
 
